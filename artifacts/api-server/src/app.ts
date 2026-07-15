@@ -3,7 +3,8 @@ import session from "express-session";
 import path from "path";
 import pinoHttp from "pino-http";
 import { logger } from "./lib/logger";
-import "./db"; // Initialize DB and seed master account
+import { BASE } from "./config";
+import "./db";
 import authRouter from "./routes/auth";
 import postsRouter from "./routes/posts";
 import commentsRouter from "./routes/comments";
@@ -12,14 +13,12 @@ import { requireLogin } from "./middleware/auth";
 
 const app: Express = express();
 
-// View engine setup
+app.set("trust proxy", 1);
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "../views"));
 
-// Static files
-app.use(express.static(path.join(__dirname, "../public")));
+app.use(`${BASE}`, express.static(path.join(__dirname, "../public")));
 
-// Logging
 app.use(
   pinoHttp({
     logger,
@@ -34,38 +33,40 @@ app.use(
   })
 );
 
-// Body parsing
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Session
 app.use(
   session({
     secret: process.env["SESSION_SECRET"] ?? "kjobs-dev-secret-key",
     resave: false,
     saveUninitialized: false,
+    proxy: true,
     cookie: {
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      maxAge: 24 * 60 * 60 * 1000,
       httpOnly: true,
+      secure: true,
+      sameSite: "none",
     },
   })
 );
 
-// Inject session user into all views
+// Inject user and base path into all views
 app.use((req, res, next) => {
   res.locals["user"] = req.session.user ?? null;
+  res.locals["base"] = BASE;
   next();
 });
 
-// Routes
-app.use("/", authRouter);
-app.use("/posts", requireLogin, postsRouter);
-app.use("/comments", requireLogin, commentsRouter);
-app.use("/admin", adminRouter);
+// Routes mounted under BASE
+app.use(`${BASE}`, authRouter);
+app.use(`${BASE}/posts`, requireLogin, postsRouter);
+app.use(`${BASE}/comments`, requireLogin, commentsRouter);
+app.use(`${BASE}/admin`, adminRouter);
 
-// Catch-all: redirect to login (covers non-existent URLs)
+// Redirect everything else to login
 app.use((_req, res) => {
-  res.redirect("/login");
+  res.redirect(`${BASE}/login`);
 });
 
 export default app;

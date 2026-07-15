@@ -7,29 +7,17 @@
     <div class="alert alert-error"><%= error %></div>
   <% } %>
 
-  <form action="/posts/<%= post.id %>/edit" method="POST" class="form">
+  <form action="<%= base %>/posts/<%= post.id %>/edit" method="POST" class="form">
     <div class="form-group">
       <label for="title">제목</label>
-      <input
-        type="text"
-        id="title"
-        name="title"
-        value="<%= post.title %>"
-        required
-        autofocus
-      />
+      <input type="text" id="title" name="title" value="<%= post.title %>" required autofocus />
     </div>
     <div class="form-group">
       <label for="content">본문</label>
-      <textarea
-        id="content"
-        name="content"
-        rows="14"
-        required
-      ><%= post.content %></textarea>
+      <textarea id="content" name="content" rows="14" required><%= post.content %></textarea>
     </div>
     <div class="form-actions">
-      <a href="/posts/<%= post.id %>" class="btn btn-outline">취소</a>
+      <a href="<%= base %>/posts/<%= post.id %>" class="btn btn-outline">취소</a>
       <button type="submit" class="btn btn-primary">수정 저장</button>
     </div>
   </form>

@@ -15,13 +15,14 @@
   <div class="post-body"><%= post.content %></div>
 
   <div class="post-actions">
-    <a href="/posts" class="btn btn-outline">&larr; 목록</a>
+    <a href="<%= base %>/posts" class="btn btn-outline">&larr; 목록</a>
     <div class="post-action-right">
       <% if (user && user.id === post.user_id) { %>
-        <a href="/posts/<%= post.id %>/edit" class="btn btn-secondary">수정</a>
+        <a href="<%= base %>/posts/<%= post.id %>/edit" class="btn btn-secondary">수정</a>
       <% } %>
       <% if (user && (user.id === post.user_id || user.role === 'admin' || user.role === 'master')) { %>
-        <form action="/posts/<%= post.id %>/delete" method="POST" onsubmit="return confirm('이 글을 삭제하시겠습니까?')">
+        <form action="<%= base %>/posts/<%= post.id %>/delete" method="POST"
+              onsubmit="return confirm('이 글을 삭제하시겠습니까?')">
           <button type="submit" class="btn btn-danger">삭제</button>
         </form>
       <% } %>
@@ -29,7 +30,6 @@
   </div>
 </div>
 
-<!-- Comments -->
 <div class="comments-section">
   <h3 class="comments-title">댓글 <span class="comment-count"><%= comments.length %></span></h3>
 
@@ -45,7 +45,7 @@
           </div>
           <p class="comment-body"><%= comment.content %></p>
           <% if (user && (user.id === comment.user_id || user.role === 'admin' || user.role === 'master')) { %>
-            <form action="/comments/<%= comment.id %>/delete" method="POST"
+            <form action="<%= base %>/comments/<%= comment.id %>/delete" method="POST"
                   onsubmit="return confirm('댓글을 삭제하시겠습니까?')"
                   class="comment-delete-form">
               <button type="submit" class="btn btn-xs btn-danger">삭제</button>
@@ -56,15 +56,9 @@
     </ul>
   <% } %>
 
-  <!-- Comment form -->
-  <form action="/comments" method="POST" class="comment-form">
+  <form action="<%= base %>/comments" method="POST" class="comment-form">
     <input type="hidden" name="postId" value="<%= post.id %>" />
-    <textarea
-      name="content"
-      placeholder="댓글을 입력하세요..."
-      rows="3"
-      required
-    ></textarea>
+    <textarea name="content" placeholder="댓글을 입력하세요..." rows="3" required></textarea>
     <div class="comment-form-footer">
       <button type="submit" class="btn btn-primary">댓글 등록</button>
     </div>

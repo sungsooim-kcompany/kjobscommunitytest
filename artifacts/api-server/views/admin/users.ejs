@@ -20,6 +20,15 @@
     </thead>
     <tbody>
       <% users.forEach(u => { %>
+        <%
+          const isSelf = user && user.id === u.id;
+          const isMaster = u.role === 'master';
+          const actorIsAdmin = user && user.role === 'admin';
+          const actorIsMaster = user && user.role === 'master';
+          const targetIsAdminOrMaster = u.role === 'admin' || u.role === 'master';
+          const canBlock = !isSelf && !isMaster && !(actorIsAdmin && targetIsAdminOrMaster);
+          const canChangeRole = actorIsMaster && !isMaster && !isSelf;
+        %>
         <tr class="<%= u.is_blocked ? 'row-blocked' : '' %>">
           <td><%= u.username %></td>
           <td><%= u.nickname %></td>
@@ -36,37 +45,22 @@
           </td>
           <td class="text-muted"><%= u.post_count %></td>
           <td class="action-cell">
-            <%
-              const isSelf = user && user.id === u.id;
-              const isMaster = u.role === 'master';
-              const actorIsAdmin = user && user.role === 'admin';
-              const actorIsMaster = user && user.role === 'master';
-              const targetIsAdminOrMaster = u.role === 'admin' || u.role === 'master';
-
-              // Can block?
-              const canBlock = !isSelf && !isMaster && !(actorIsAdmin && targetIsAdminOrMaster);
-              // Can change role? (master only, not on other masters, not on self)
-              const canChangeRole = actorIsMaster && !isMaster && !isSelf;
-            %>
-
             <% if (canBlock) { %>
-              <form action="/admin/users/<%= u.id %>/block" method="POST" style="display:inline"
+              <form action="<%= base %>/admin/users/<%= u.id %>/block" method="POST" style="display:inline"
                     onsubmit="return confirm('<%= u.is_blocked ? u.nickname + '의 차단을 해제하시겠습니까?' : u.nickname + '을(를) 차단하시겠습니까?' %>')">
                 <button type="submit" class="btn btn-xs <%= u.is_blocked ? 'btn-secondary' : 'btn-danger' %>">
                   <%= u.is_blocked ? '차단 해제' : '차단' %>
                 </button>
               </form>
             <% } %>
-
             <% if (canChangeRole) { %>
-              <form action="/admin/users/<%= u.id %>/role" method="POST" style="display:inline"
+              <form action="<%= base %>/admin/users/<%= u.id %>/role" method="POST" style="display:inline"
                     onsubmit="return confirm('<%= u.role === 'admin' ? u.nickname + '의 관리자 권한을 해제하시겠습니까?' : u.nickname + '을(를) 관리자로 임명하시겠습니까?' %>')">
                 <button type="submit" class="btn btn-xs <%= u.role === 'admin' ? 'btn-outline' : 'btn-primary' %>">
                   <%= u.role === 'admin' ? '관리자 해제' : '관리자 임명' %>
                 </button>
               </form>
             <% } %>
-
             <% if (!canBlock && !canChangeRole) { %>
               <span class="text-muted">—</span>
             <% } %>

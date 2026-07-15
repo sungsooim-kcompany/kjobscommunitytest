@@ -1,19 +1,20 @@
 import { Router } from "express";
 import bcrypt from "bcryptjs";
 import db from "../db";
+import { BASE } from "../config";
 import { checkRateLimit, recordFailure, resetAttempts } from "../middleware/rateLimit";
 
 const router = Router();
 
 // GET / → redirect based on login state
 router.get("/", (req, res) => {
-  if (req.session.user) return res.redirect("/posts");
-  res.redirect("/login");
+  if (req.session.user) return res.redirect(`${BASE}/posts`);
+  res.redirect(`${BASE}/login`);
 });
 
 // GET /login
 router.get("/login", (req, res) => {
-  if (req.session.user) return res.redirect("/posts");
+  if (req.session.user) return res.redirect(`${BASE}/posts`);
   res.render("login", {
     error: null,
     username: "",
@@ -32,16 +33,17 @@ router.post("/login", (req, res) => {
     return res.render("login", {
       error: "아이디와 비밀번호를 입력해 주세요.",
       username: username ?? "",
+      registered: false,
     });
   }
 
-  // Rate limit check
   const rateCheck = checkRateLimit(username);
   if (!rateCheck.allowed) {
     const minutesLeft = Math.ceil((rateCheck.waitMs ?? 0) / 60000);
     return res.render("login", {
       error: `로그인 시도가 너무 많습니다. ${minutesLeft}분 후에 다시 시도해 주세요.`,
       username,
+      registered: false,
     });
   }
 
@@ -65,6 +67,7 @@ router.post("/login", (req, res) => {
     return res.render("login", {
       error: "아이디 또는 비밀번호가 올바르지 않습니다.",
       username,
+      registered: false,
     });
   }
 
@@ -72,6 +75,7 @@ router.post("/login", (req, res) => {
     return res.render("login", {
       error: "차단된 계정입니다. 관리자에게 문의하세요.",
       username,
+      registered: false,
     });
   }
 
@@ -84,12 +88,14 @@ router.post("/login", (req, res) => {
     role: user.role as "user" | "admin" | "master",
   };
 
-  res.redirect("/posts");
+  req.session.save(() => {
+    res.redirect(`${BASE}/posts`);
+  });
 });
 
 // GET /register
 router.get("/register", (req, res) => {
-  if (req.session.user) return res.redirect("/posts");
+  if (req.session.user) return res.redirect(`${BASE}/posts`);
   res.render("register", { error: null, fields: {} });
 });
 
@@ -104,12 +110,8 @@ router.post("/register", (req, res) => {
 
   const fields = { username, nickname };
 
-  // Validation
   if (!username || !password || !passwordConfirm || !nickname) {
-    return res.render("register", {
-      error: "모든 항목을 입력해 주세요.",
-      fields,
-    });
+    return res.render("register", { error: "모든 항목을 입력해 주세요.", fields });
   }
 
   if (!/^[a-z0-9]{4,20}$/.test(username)) {
@@ -140,25 +142,14 @@ router.post("/register", (req, res) => {
     });
   }
 
-  // Duplicate check
-  const existingUser = db
-    .prepare("SELECT id FROM users WHERE username = ?")
-    .get(username);
+  const existingUser = db.prepare("SELECT id FROM users WHERE username = ?").get(username);
   if (existingUser) {
-    return res.render("register", {
-      error: "이미 사용 중인 아이디입니다.",
-      fields,
-    });
+    return res.render("register", { error: "이미 사용 중인 아이디입니다.", fields });
   }
 
-  const existingNickname = db
-    .prepare("SELECT id FROM users WHERE nickname = ?")
-    .get(nickname);
+  const existingNickname = db.prepare("SELECT id FROM users WHERE nickname = ?").get(nickname);
   if (existingNickname) {
-    return res.render("register", {
-      error: "이미 사용 중인 닉네임입니다.",
-      fields,
-    });
+    return res.render("register", { error: "이미 사용 중인 닉네임입니다.", fields });
   }
 
   const passwordHash = bcrypt.hashSync(password, 12);
@@ -166,13 +157,13 @@ router.post("/register", (req, res) => {
     "INSERT INTO users (username, password_hash, nickname, role) VALUES (?, ?, ?, ?)"
   ).run(username, passwordHash, nickname, "user");
 
-  res.redirect("/login?registered=1");
+  res.redirect(`${BASE}/login?registered=1`);
 });
 
 // POST /logout
 router.post("/logout", (req, res) => {
   req.session.destroy(() => {
-    res.redirect("/login");
+    res.redirect(`${BASE}/login`);
   });
 });
 

@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/"
+title = "Kjobs"
+version = "1.0.0"
+id = "artifacts/kjobs-web"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24707
+
+[services.development]
+run = "pnpm --filter @workspace/kjobs-web run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/kjobs-web", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/kjobs-web/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24707"
+BASE_PATH = "/"
