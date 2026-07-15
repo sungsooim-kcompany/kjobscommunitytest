@@ -14,6 +14,16 @@ import { requireLogin } from "./middleware/auth";
 const app: Express = express();
 
 app.set("trust proxy", 1);
+
+// Replit always terminates TLS at the edge — force HTTPS protocol detection
+// so express-session sends the Secure cookie flag correctly inside the proxy.
+if (process.env["REPL_ID"]) {
+  app.use((_req, _res, next) => {
+    _req.headers["x-forwarded-proto"] = "https";
+    next();
+  });
+}
+
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "../views"));
 
