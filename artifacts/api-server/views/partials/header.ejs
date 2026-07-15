@@ -22,6 +22,7 @@
             <a href="<%= base %>/admin/users" class="nav-link">이용자 관리</a>
           <% } %>
           <form action="<%= base %>/logout" method="POST" style="display:inline">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
             <button type="submit" class="btn btn-sm btn-outline">로그아웃</button>
           </form>
         </div>

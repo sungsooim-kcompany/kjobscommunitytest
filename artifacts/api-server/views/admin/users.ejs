@@ -48,6 +48,7 @@
             <% if (canBlock) { %>
               <form action="<%= base %>/admin/users/<%= u.id %>/block" method="POST" style="display:inline"
                     onsubmit="return confirm('<%= u.is_blocked ? u.nickname + '의 차단을 해제하시겠습니까?' : u.nickname + '을(를) 차단하시겠습니까?' %>')">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <button type="submit" class="btn btn-xs <%= u.is_blocked ? 'btn-secondary' : 'btn-danger' %>">
                   <%= u.is_blocked ? '차단 해제' : '차단' %>
                 </button>
@@ -56,6 +57,7 @@
             <% if (canChangeRole) { %>
               <form action="<%= base %>/admin/users/<%= u.id %>/role" method="POST" style="display:inline"
                     onsubmit="return confirm('<%= u.role === 'admin' ? u.nickname + '의 관리자 권한을 해제하시겠습니까?' : u.nickname + '을(를) 관리자로 임명하시겠습니까?' %>')">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <button type="submit" class="btn btn-xs <%= u.role === 'admin' ? 'btn-outline' : 'btn-primary' %>">
                   <%= u.role === 'admin' ? '관리자 해제' : '관리자 임명' %>
                 </button>

@@ -8,5 +8,6 @@ declare module "express-session" {
       nickname: string;
       role: "user" | "admin" | "master";
     };
+    csrfToken?: string;
   }
 }

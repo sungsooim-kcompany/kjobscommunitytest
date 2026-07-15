@@ -16,6 +16,7 @@
     <% } %>
 
     <form action="<%= base %>/login" method="POST" class="form">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
       <div class="form-group">
         <label for="username">아이디</label>
         <input type="text" id="username" name="username"

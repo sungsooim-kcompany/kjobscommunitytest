@@ -23,6 +23,7 @@
       <% if (user && (user.id === post.user_id || user.role === 'admin' || user.role === 'master')) { %>
         <form action="<%= base %>/posts/<%= post.id %>/delete" method="POST"
               onsubmit="return confirm('이 글을 삭제하시겠습니까?')">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
           <button type="submit" class="btn btn-danger">삭제</button>
         </form>
       <% } %>
@@ -48,6 +49,7 @@
             <form action="<%= base %>/comments/<%= comment.id %>/delete" method="POST"
                   onsubmit="return confirm('댓글을 삭제하시겠습니까?')"
                   class="comment-delete-form">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
               <button type="submit" class="btn btn-xs btn-danger">삭제</button>
             </form>
           <% } %>
@@ -57,6 +59,7 @@
   <% } %>
 
   <form action="<%= base %>/comments" method="POST" class="comment-form">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
     <input type="hidden" name="postId" value="<%= post.id %>" />
     <textarea name="content" placeholder="댓글을 입력하세요..." rows="3" required></textarea>
     <div class="comment-form-footer">

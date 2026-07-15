@@ -9,7 +9,9 @@ _Replace the heading above with the project's name, and this line with one sente
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- Required env (production): `SESSION_SECRET` — session signing key; server refuses to boot without it when `NODE_ENV=production`
+- Optional env: `MASTER_PASSWORD` — master account password (unset: random password generated and logged once on first seed; if set, master password is synced to it on boot)
+- DB is a local SQLite file at `artifacts/api-server/data/kjobs.db` (better-sqlite3), not Postgres — `DATABASE_URL` is unused
 
 ## Stack
 
