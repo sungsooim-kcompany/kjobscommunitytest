@@ -1,0 +1,74 @@
+<%- include('../partials/header', { title: post.title }) %>
+
+<div class="post-detail">
+  <div class="post-header">
+    <h2 class="post-title"><%= post.title %></h2>
+    <div class="post-meta">
+      <span><strong><%= post.nickname %></strong></span>
+      <span class="sep">·</span>
+      <span><%= post.created_at.slice(0, 16).replace('T', ' ') %></span>
+      <span class="sep">·</span>
+      <span>조회 <%= post.view_count %></span>
+    </div>
+  </div>
+
+  <div class="post-body"><%= post.content %></div>
+
+  <div class="post-actions">
+    <a href="/posts" class="btn btn-outline">&larr; 목록</a>
+    <div class="post-action-right">
+      <% if (user && user.id === post.user_id) { %>
+        <a href="/posts/<%= post.id %>/edit" class="btn btn-secondary">수정</a>
+      <% } %>
+      <% if (user && (user.id === post.user_id || user.role === 'admin' || user.role === 'master')) { %>
+        <form action="/posts/<%= post.id %>/delete" method="POST" onsubmit="return confirm('이 글을 삭제하시겠습니까?')">
+          <button type="submit" class="btn btn-danger">삭제</button>
+        </form>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<!-- Comments -->
+<div class="comments-section">
+  <h3 class="comments-title">댓글 <span class="comment-count"><%= comments.length %></span></h3>
+
+  <% if (comments.length === 0) { %>
+    <p class="text-muted empty-comments">아직 댓글이 없습니다.</p>
+  <% } else { %>
+    <ul class="comment-list">
+      <% comments.forEach(comment => { %>
+        <li class="comment-item">
+          <div class="comment-meta">
+            <span class="comment-author"><%= comment.nickname %></span>
+            <span class="text-muted"><%= comment.created_at.slice(0, 16).replace('T', ' ') %></span>
+          </div>
+          <p class="comment-body"><%= comment.content %></p>
+          <% if (user && (user.id === comment.user_id || user.role === 'admin' || user.role === 'master')) { %>
+            <form action="/comments/<%= comment.id %>/delete" method="POST"
+                  onsubmit="return confirm('댓글을 삭제하시겠습니까?')"
+                  class="comment-delete-form">
+              <button type="submit" class="btn btn-xs btn-danger">삭제</button>
+            </form>
+          <% } %>
+        </li>
+      <% }) %>
+    </ul>
+  <% } %>
+
+  <!-- Comment form -->
+  <form action="/comments" method="POST" class="comment-form">
+    <input type="hidden" name="postId" value="<%= post.id %>" />
+    <textarea
+      name="content"
+      placeholder="댓글을 입력하세요..."
+      rows="3"
+      required
+    ></textarea>
+    <div class="comment-form-footer">
+      <button type="submit" class="btn btn-primary">댓글 등록</button>
+    </div>
+  </form>
+</div>
+
+<%- include('../partials/footer') %>

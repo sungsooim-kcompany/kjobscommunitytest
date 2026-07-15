@@ -1,0 +1,39 @@
+<%- include('../partials/header', { title: '글쓰기' }) %>
+
+<div class="form-page">
+  <h2>새 글 작성</h2>
+
+  <% if (error) { %>
+    <div class="alert alert-error"><%= error %></div>
+  <% } %>
+
+  <form action="/posts" method="POST" class="form">
+    <div class="form-group">
+      <label for="title">제목</label>
+      <input
+        type="text"
+        id="title"
+        name="title"
+        required
+        autofocus
+        placeholder="제목을 입력하세요"
+      />
+    </div>
+    <div class="form-group">
+      <label for="content">본문</label>
+      <textarea
+        id="content"
+        name="content"
+        rows="14"
+        required
+        placeholder="내용을 입력하세요"
+      ></textarea>
+    </div>
+    <div class="form-actions">
+      <a href="/posts" class="btn btn-outline">취소</a>
+      <button type="submit" class="btn btn-primary">등록</button>
+    </div>
+  </form>
+</div>
+
+<%- include('../partials/footer') %>

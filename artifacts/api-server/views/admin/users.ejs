@@ -1,0 +1,80 @@
+<%- include('../partials/header', { title: '이용자 관리' }) %>
+
+<div class="page-header">
+  <h2>이용자 관리</h2>
+  <span class="text-muted">총 <strong><%= users.length %></strong>명</span>
+</div>
+
+<div class="table-wrap">
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>아이디</th>
+        <th>닉네임</th>
+        <th>등급</th>
+        <th>가입일</th>
+        <th>상태</th>
+        <th>작성 글</th>
+        <th>관리</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% users.forEach(u => { %>
+        <tr class="<%= u.is_blocked ? 'row-blocked' : '' %>">
+          <td><%= u.username %></td>
+          <td><%= u.nickname %></td>
+          <td>
+            <span class="role-badge role-<%= u.role %>">
+              <%= u.role === 'master' ? '마스터' : u.role === 'admin' ? '관리자' : '일반' %>
+            </span>
+          </td>
+          <td class="text-muted"><%= u.created_at.slice(0, 10) %></td>
+          <td>
+            <span class="status-badge <%= u.is_blocked ? 'status-blocked' : 'status-ok' %>">
+              <%= u.is_blocked ? '차단' : '정상' %>
+            </span>
+          </td>
+          <td class="text-muted"><%= u.post_count %></td>
+          <td class="action-cell">
+            <%
+              const isSelf = user && user.id === u.id;
+              const isMaster = u.role === 'master';
+              const actorIsAdmin = user && user.role === 'admin';
+              const actorIsMaster = user && user.role === 'master';
+              const targetIsAdminOrMaster = u.role === 'admin' || u.role === 'master';
+
+              // Can block?
+              const canBlock = !isSelf && !isMaster && !(actorIsAdmin && targetIsAdminOrMaster);
+              // Can change role? (master only, not on other masters, not on self)
+              const canChangeRole = actorIsMaster && !isMaster && !isSelf;
+            %>
+
+            <% if (canBlock) { %>
+              <form action="/admin/users/<%= u.id %>/block" method="POST" style="display:inline"
+                    onsubmit="return confirm('<%= u.is_blocked ? u.nickname + '의 차단을 해제하시겠습니까?' : u.nickname + '을(를) 차단하시겠습니까?' %>')">
+                <button type="submit" class="btn btn-xs <%= u.is_blocked ? 'btn-secondary' : 'btn-danger' %>">
+                  <%= u.is_blocked ? '차단 해제' : '차단' %>
+                </button>
+              </form>
+            <% } %>
+
+            <% if (canChangeRole) { %>
+              <form action="/admin/users/<%= u.id %>/role" method="POST" style="display:inline"
+                    onsubmit="return confirm('<%= u.role === 'admin' ? u.nickname + '의 관리자 권한을 해제하시겠습니까?' : u.nickname + '을(를) 관리자로 임명하시겠습니까?' %>')">
+                <button type="submit" class="btn btn-xs <%= u.role === 'admin' ? 'btn-outline' : 'btn-primary' %>">
+                  <%= u.role === 'admin' ? '관리자 해제' : '관리자 임명' %>
+                </button>
+              </form>
+            <% } %>
+
+            <% if (!canBlock && !canChangeRole) { %>
+              <span class="text-muted">—</span>
+            <% } %>
+          </td>
+        </tr>
+      <% }) %>
+    </tbody>
+  </table>
+</div>
+
+<%- include('../partials/footer') %>

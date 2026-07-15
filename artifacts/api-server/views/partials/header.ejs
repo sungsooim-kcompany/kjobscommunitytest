@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= typeof title !== 'undefined' ? title + ' — Kjobs' : 'Kjobs' %></title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a href="/posts" class="logo">Kjobs</a>
+      <% if (user) { %>
+        <div class="nav-right">
+          <span class="nav-user">
+            <span class="nickname"><%= user.nickname %></span>
+            <span class="role-badge role-<%= user.role %>">
+              <%= user.role === 'master' ? '마스터' : user.role === 'admin' ? '관리자' : '회원' %>
+            </span>
+          </span>
+          <% if (user.role === 'admin' || user.role === 'master') { %>
+            <a href="/admin/users" class="nav-link">이용자 관리</a>
+          <% } %>
+          <form action="/logout" method="POST" style="display:inline">
+            <button type="submit" class="btn btn-sm btn-outline">로그아웃</button>
+          </form>
+        </div>
+      <% } else { %>
+        <div class="nav-right">
+          <a href="/login" class="nav-link">로그인</a>
+          <a href="/register" class="btn btn-sm btn-primary">회원가입</a>
+        </div>
+      <% } %>
+    </div>
+  </nav>
+  <main class="container">
